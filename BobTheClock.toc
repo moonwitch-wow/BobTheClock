@@ -1,0 +1,13 @@
+## Interface: 50400
+
+## Title: BobTheClock
+## Notes: Clock Addon as described by Bob in TS
+## Author: Kelly Crabbé AKA MoonWitch
+## Version: 0.1a
+## X-Website: https://github.com/moonwitch/BobTheClock
+## X-Email: kelly.crabbe@gmail.com
+
+SavedVariables: BobTheClockDB
+
+options.lua
+core.lua
