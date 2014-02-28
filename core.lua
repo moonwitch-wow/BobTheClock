@@ -33,12 +33,23 @@ local function formatMemory(n)
    end
 end
 
-local BobTheClock = CreateFrame("Button", 'BobTheClock', UIParent) -- baseframe
+local BobTheClock = CreateFrame("Frame", 'BobTheClock', UIParent) -- baseframe
 BobTheClock:SetSize(175, 50)
-BobTheClock:RegisterForClicks()
+-- BobTheClock:RegisterForClicks()
+BobTheClock:EnableMouse(true)
 
 local BobTheClockStats = BobTheClock:CreateFontString(nil, nil, nil)
 local BobTheClockTime = BobTheClock:CreateFontString(nil, nil, nil)
+
+local function argh()
+   BobTheClock:SetBackdrop(BACKDROP)
+   BobTheClock:SetBackdropColor(0, 1, 0, .5)
+   BobTheClock:SetMovable(true)
+   BobTheClock:SetUserPlaced(true)
+   BobTheClock:RegisterForDrag('RightButton')
+   BobTheClock:SetScript("OnDragStart", function() BobTheClock:StartMoving() end)
+   BobTheClock:SetScript("OnDragStop", function() BobTheClock:StopMovingOrSizing() end)
+end
 
 function BobTheHandler:PLAYER_LOGIN()
    local bobtime
@@ -60,16 +71,9 @@ function BobTheHandler:PLAYER_LOGIN()
 
    BobTheClockTime:SetText(bobtime)
 
-   -- if BobTheClockDB.framelock == false then
-   --    -- BobTheClock:SetBackdrop(BACKDROP)
-   --    -- BobTheClock:SetBackdropColor(0, 1, 0, .5)
-   --    BobTheClock:SetMovable(true)
-   --    BobTheClock:EnableMouse(true)
-   --    BobTheClock:SetUserPlaced(true)
-   --    BobTheClock:RegisterForDrag('RightButton')
-   --    BobTheClock:SetScript("OnDragStart", function() BobTheClock:StartMoving() end)
-   --    BobTheClock:SetScript("OnDragStop", function() BobTheClock:StopMovingOrSizing() end)
-   -- end
+   if BobTheClockDB.framelock == false then
+      argh()
+   end
 end
 
 ------------------------------------------------------------------------
@@ -88,9 +92,13 @@ BobTheHandler:SetScript("OnUpdate", function(self, count)
    BobTheClockStats:SetText(fps .. 'fps  ' .. lag .. 'ms  ' .. formatMemory(mem))
 end)
 
-BobTheClock:SetScript("OnMouseDown", function(self)
-   collectgarbage('collect')
-   SendChatMessage("Hey Bob!", "RAID_WARNING")
+BobTheClock:SetScript("OnMouseDown", function(self, button)
+   if button == "LeftButton" then
+      collectgarbage('collect')
+      SendChatMessage("Hey Bob!", "RAID_WARNING")
+   elseif button == "RightButton" then
+      SendChatMessage("I am teh Bob, who drank the awesomesauce!", "GUILD")
+   end
 end)
 
 ------------------------------------------------------------------------
