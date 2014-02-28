@@ -60,10 +60,19 @@ function BobTheHandler:PLAYER_LOGIN()
    end
 
    -- Bob wanted a huge clock
-   BobTheClockTime:SetFont(BobTheClockDB.clockfont, BobTheClockDB.clocksize)
+   BobTheClockTime:SetFont(BobTheClockDB.clockfont, BobTheClockDB.clocksize, BobTheClockDB.clockoutline)
    BobTheClockTime:SetTextColor(unpack(BobTheClockDB.clockcolor))
-   BobTheClockStats:SetFont(BobTheClockDB.statsfont, BobTheClockDB.statssize)
+   if BobTheClockDB.clockshadow == true then
+      BobTheClockTime:SetShadowColor(unpack(BobTheClockDB.shadowcolor))
+      BobTheClockTime:SetShadowOffset(1, -1)
+   else return end
+
+   BobTheClockStats:SetFont(BobTheClockDB.statsfont, BobTheClockDB.statssize, BobTheClockDB.statsoutline)
    BobTheClockStats:SetTextColor(unpack(BobTheClockDB.statscolor))
+   if BobTheClockDB.statsshadow == true then
+      BobTheClockStats:SetShadowColor(unpack(BobTheClockDB.shadowcolor))
+      BobTheClockStats:SetShadowOffset(1, -1)
+   else return end
 
    BobTheClock:SetPoint("TOP", UIParent, 'TOP', 0, -5)
    BobTheClockTime:SetPoint("TOP", BobTheClock, 'TOP', 0, 0)

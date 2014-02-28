@@ -1,6 +1,6 @@
-------------------------------------------------------------------------
--- Namespaceing
-------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- Gui functions
+-------------------------------------------------------------------------------
 local addonName, ns = ...
 local buttons = {}
 
@@ -10,32 +10,52 @@ local defaults = {
    timeform24 = true,
    clockcolor = {255/255, 204/255, 0/255},
    clockshadow = true,
+   clockoutline = nil, -- nil, OUTLINE, THICKOUTLINE, MONOCHROMEOUTLINE
    clocksize = 32,
    clockfont = STANDARD_TEXT_FONT,
    statsshow = true,
    statscolor = {255/255, 204/255, 0/255},
    statsshadow = true,
+   statsoutline = nil, -- nil, OUTLINE, THICKOUTLINE, MONOCHROMEOUTLINE
    statssize = 14,
    statsfont = STANDARD_TEXT_FONT,
    framelock = true,
-   framescale = 2,
+   shadowcolor = {0, 0, 0, .8} -- keeping it universal
 }
 
 ------------------------------------------------------------------------
--- Main Catefgory Frame
--- Register in the Interface Addon Options GUI
--- Set the name for the Category for the Options Panel
+-- Frame creation
 ------------------------------------------------------------------------
 local Panel = CreateFrame('Frame', nil, InterfaceOptionsFramePanelContainer)
 Panel.name = addonName
 Panel:Hide()
 
-function Panel:AddCheckbox(checkname, checktext, point, anchor, rpoint)
-   local template = "UICheckButtonTemplate"
-   local checkButton = CreateFrame("Button", checkname, UIParent, template) --frameType, frameName, frameParent, frameTemplate
-   checkButton:SetPoint(point, anchor, rpoint, 0, -5)
-   checkButton.text = checkname.."Text"
-   checkButton.text:SetText(checktext)
+------------------------------------------------------------------------
+-- GUI methods
+------------------------------------------------------------------------
+function Panel:AddCheckbox(name, text, point, anchor, rpoint)
+   local checkButton = CreateFrame("Button", name, Panel, "UICheckButtonTemplate")
+   checkButton.text = name.."Text"
+   checkButton.text:SetText(text)
+end
+
+function Panel:AddColorPicker(name, text, desc, point, anchor, rpoint)
+end
+
+function Panel:CreateSlider(name, text, parent, low, high, step)
+   local slider = CreateFrame('Slider', name, parent, 'OptionsSliderTemplate')
+   slider:SetScript('OnMouseWheel', Slider_OnMouseWheel)
+   slider:SetMinMaxValues(low, high)
+   slider:SetValueStep(step)
+   slider:EnableMouseWheel(true)
+   slider.text:SetText(text)
+   _G[name .. 'Low']:SetText('')
+   _G[name .. 'High']:SetText('')
+   local text = slider:CreateFontString(nil, 'BACKGROUND')
+   text:SetFontObject('GameFontHighlightSmall')
+   text:SetPoint('LEFT', slider, 'RIGHT', 7, 0)
+   slider.valText = text
+   return slider
 end
 
 -----------------------------
@@ -58,6 +78,11 @@ function Panel:okay()
    end
 end
 
+function Panel:cancel()
+
+end
+
+
 function Panel:default()
    BobTheClockDB = defaults
    table.wipe(temporary)
@@ -78,10 +103,8 @@ Panel:SetScript('OnShow', function(self)
    self.Description = Description
 
    -- local Color = self:CreateFontString(nil, nil, 'GameFontNormal')
-   local timeFormat = self:CreateFontString(nil, nil, 'GameFontNormal')
-   timeFormat:SetPoint("TOPLEFT", Description, 'BOTTOMLEFT', 0, -10)
-   timeFormat:SetText('Check for 24H timeformat')
    local timeFormatButton = Panel:AddCheckbox('TimeFormatBox', 'Check to enable 24h format', 'LEFT', timeFormat, 'RIGHT')
+   -- timeFormatButton:SetScript("OnClick", function() end)
 
    self:SetScript('OnShow', nil)
 end)
