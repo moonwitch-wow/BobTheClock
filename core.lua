@@ -41,7 +41,7 @@ BobTheClock:EnableMouse(true)
 local BobTheClockStats = BobTheClock:CreateFontString(nil, nil, nil)
 local BobTheClockTime = BobTheClock:CreateFontString(nil, nil, nil)
 
-local function argh()
+function BobTheHandler:argh()
    BobTheClock:SetBackdrop(BACKDROP)
    BobTheClock:SetBackdropColor(0, 1, 0, .5)
    BobTheClock:SetMovable(true)
@@ -80,9 +80,13 @@ function BobTheHandler:PLAYER_LOGIN()
 
    BobTheClockTime:SetText(bobtime)
 
-   if BobTheClockDB.framelock == false then
-      argh()
-   end
+   -- if (BobTheClockDB.locked == false) then
+   --    BobTheHandler:argh()
+   -- else
+   --    BobTheClock:SetBackdrop(BACKDROP)
+   --    BobTheClock:SetBackdropColor(0,0,0,0)
+   --    BobTheClock:SetMovable(false)
+   -- end
 end
 
 ------------------------------------------------------------------------
