@@ -34,24 +34,22 @@ Panel:Hide()
 ------------------------------------------------------------------------
 -- GUI methods
 ------------------------------------------------------------------------
-function Panel:AddCheckbox(parent, text, table, key)
-   local checkButton = CreateFrame("Button", nil, parent, "UICheckButtonTemplate")
-
-   local label = checkButton:CreateFontString(nil, 'ARTWORK', "GameFontHighlight")
-   label:SetPoint("LEFT", checkButton, "RIGHT", 2, 1)
-   label:SetText(text)
-   checkButton.label = label
+function Panel:AddCheckbox(parent, table, key)
+   local checkButton = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+   checkButton:SetHitRectInsets(0, 0, 0, 0)
 
    -- hook functions into this shithole of doom
    checkButton:SetScript("OnClick",
-      function (self, checkButton, down)
-         if ( checkButton:GetChecked() ) then
-            PlaySound("igMainMenuOptionCheckBoxOn")
+      function (self)
+         if(self:GetChecked()) then
+            temporary[self.key] = true
          else
-            PlaySound("igMainMenuOptionCheckBoxOff")
+          temporary[self.key] = false
          end
-         -- InterfaceOptionsPanel_CheckButton_OnClick(self);
       end)
+
+   checkButton.key = key
+   buttons[key] = checkButton
 
    return checkButton
 end
