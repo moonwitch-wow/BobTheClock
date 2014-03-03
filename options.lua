@@ -95,7 +95,7 @@ Panel:SetScript('OnEvent', function()
          BobTheClockDB[key] = value
       end
    end
-   BobTheHandler:PLAYER_LOGIN()
+   BobTheHandler:PLAYER_LOGIN() -- Hi there, without me, you can't see!
 end)
 
 function Panel:okay()
