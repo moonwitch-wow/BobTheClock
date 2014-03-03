@@ -177,3 +177,8 @@ end)
 -- Add the panel to the Interface Options
 InterfaceOptions_AddCategory(Panel)
 
+SLASH_bobtheclock1 = '/bobtheclock'
+SlashCmdList[addonName] = function()
+   InterfaceOptionsFrame_OpenToCategory(addonName)
+end
+
