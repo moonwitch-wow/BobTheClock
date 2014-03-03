@@ -75,13 +75,12 @@ function Panel:CreateSlider(name, text, low, high, step)
    return slider
 end
 
-function Panel:CreateButton(name, text)
-   local button = CreateFrame('Button', name, 'Panel', 'UIPanelButtonTemplate')
-   button.text:SetText(text)
-   local text = button:CreateFontString(nil, 'BACKGROUND')
-   text:SetFontObject('GameFontHighlightSmall')
-   text:SetPoint('LEFT', button, 'RIGHT', 7, 0)
-   button.valText = text
+function Panel:CreateButton(parent, text, width, func)
+   local button = CreateFrame("Button", nil, parent, "OptionsButtonTemplate")
+   button:SetText(text)
+   button:SetWidth(width)
+   button:SetScript("OnClick", func)
+
    return button
 end
 
