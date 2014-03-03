@@ -2,8 +2,6 @@
 -- Gui functions
 -------------------------------------------------------------------------------
 local addonName, ns = ...
-local buttons = {}
-local temporary = {}
 
 -----------------------------
 -- Defaults
@@ -31,57 +29,6 @@ local Panel = CreateFrame('Frame', nil, InterfaceOptionsFramePanelContainer)
 Panel.name = addonName
 Panel:Hide()
 
-------------------------------------------------------------------------
--- GUI methods
-------------------------------------------------------------------------
-function Panel:AddCheckbox(parent, table, key)
-   local checkButton = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
-   checkButton:SetHitRectInsets(0, 0, 0, 0)
-
-   -- hook functions into this shithole of doom
-   checkButton:SetScript("OnClick",
-      function (self)
-         if(self:GetChecked()) then
-            temporary[self.key] = true
-         else
-          temporary[self.key] = false
-         end
-      end)
-
-   checkButton.key = key
-   buttons[key] = checkButton
-
-   return checkButton
-end
-
-function Panel:AddColorPicker(name, text, desc, point, anchor, rpoint)
-end
-
-function Panel:CreateSlider(name, text, low, high, step)
-   local slider = CreateFrame('Slider', name, 'Panel', 'OptionsSliderTemplate')
-   slider:SetScript('OnMouseWheel', Slider_OnMouseWheel)
-   slider:SetMinMaxValues(low, high)
-   slider:SetValueStep(step)
-   slider:EnableMouseWheel(true)
-   slider.text:SetText(text)
-   _G[name .. 'Low']:SetText('')
-   _G[name .. 'High']:SetText('')
-   local text = slider:CreateFontString(nil, 'BACKGROUND')
-   text:SetFontObject('GameFontHighlightSmall')
-   text:SetPoint('LEFT', slider, 'RIGHT', 7, 0)
-   slider.valText = text
-   return slider
-end
-
-function Panel:CreateButton(parent, text, width, func)
-   local button = CreateFrame("Button", nil, parent, "OptionsButtonTemplate")
-   button:SetText(text)
-   button:SetWidth(width)
-   button:SetScript("OnClick", func)
-
-   return button
-end
-
 -----------------------------
 -- Adding the reading of the DB to this
 Panel:RegisterEvent('PLAYER_LOGIN')
@@ -93,6 +40,7 @@ Panel:SetScript('OnEvent', function()
          BobTheClockDB[key] = value
       end
    end
+
    BobTheHandler:PLAYER_LOGIN() -- Hi there, without me, you can't see!
 end)
 
@@ -102,30 +50,48 @@ function Panel:okay()
    end
 end
 
-function Panel:cancel()
-   table.wipe(temporary)
-end
+------------------------------------------------------------------------
+-- GUI methods
+------------------------------------------------------------------------
+function Panel:CreateCheckbox(text, tooltiptext)
+   -- On Phanx' recommendation randomized name
+   local checkButton = CreateFrame("CheckButton", "BobCheckbox" .. random(1000000), self, "InterfaceOptionsCheckButtonTemplate")
+   checkButton:SetHitRectInsets(0, 0, 0, 0)
 
-function Panel:default()
-   for key, value in pairs(defaults) do
-      BobTheClockDB[key] = value
+   -- hook functions into this shithole of doom
+   checkButton:SetScript("OnClick",
+      function(self)
+         local checked = not not self:GetChecked() -- convert 1/nil to true/false
+         PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff")
+         if self.func then
+            self:func(checked)
+         end
+      end)
+
+   -- Customize it
+   checkButton.Text:SetText(text)
+   if tooltiptext then
+      checkButton.TooltipText = tooltipText
+   else
+      checkButton.TooltipText = text
    end
 
-   table.wipe(temporary)
+   -- Return it
+   return checkButton
 end
 
-function Panel:refresh()
-   for key, button in pairs(buttons) do
-      if(button:IsObjectType('CheckButton')) then
-         button:SetChecked(BobTheClockDB[key])
-      elseif(button:IsObjectType('Button')) then
-         UIDropDownMenu_SetSelectedValue(button, BobTheClockDB[key])
-
-         -- This is for some reason needed, gotta take a look into it later
-         UIDropDownMenu_SetText(button, _G[BobTheClockDB[key] .. '_KEY'])
-      end
-   end
+function Panel:CreateColorpicker(name, text, desc, point, anchor, rpoint)
 end
+
+function Panel:CreateButton(parent, text, width, func)
+   local button = CreateFrame("Button", nil, parent, "OptionsButtonTemplate")
+   button:SetText(text)
+   button:SetWidth(width)
+   button:SetScript("OnClick", func)
+
+   return button
+end
+
 
 -----------------------------
 -- Populating the panel itself (main panel)
@@ -154,42 +120,55 @@ Panel:SetScript('OnShow', function(self)
    self.ClockSettings = ClockSettings
 
    -- time format
-   local timeFormatButton = Panel:AddCheckbox(Panel, BobTheClockDB, timeform24)
-   timeFormatButton:SetPoint("TOPLEFT", ClockSettings, "BOTTOMLEFT", 0, -5)
-   timeFormatButton:SetText('Check to enable 24h format.')
+   local timeFormat = self:CreateCheckbox("Use 24-hour time format", "Uncheck this box to switch to 12-hour time format.", BobTheClockDB, timeform24)
+   timeFormat:SetPoint("TOPLEFT", ClockSettings, "BOTTOMLEFT", 0, -5)
+   timeFormat.func = function(self, value)
+      BobTheClockDB.timeform24 = value
+      BobTheHandler:PLAYER_LOGIN()
+   end
 
    -- enable shadow
-   local enDisShadow = Panel:AddCheckbox(Panel, "Check to enable a shadow on the clock.", BobTheClockDB, clockshadow)
-   enDisShadow:SetPoint("TOPLEFT", timeFormatButton, "BOTTOMLEFT", 0, -5)
+   local enDisShadow = self:CreateCheckbox("Check to enable Shadow on the clock.")
+   enDisShadow:SetPoint("TOPLEFT", timeFormat, "BOTTOMLEFT", 0, -5)
+   enDisShadow.func = function(self, value)
+      BobTheClockDB.clockshadow = value
+      BobTheHandler:PLAYER_LOGIN()
+   end
 
    -- outline
-   local enOutline = Panel:AddCheckbox(Panel, "Check to enable an outline on the clock.", BobTheClockDB, clockoutline)
+   local enOutline = self:CreateCheckbox('Check to enable outline on clock.')
    enOutline:SetPoint("TOPLEFT", enDisShadow, "BOTTOMLEFT", 0, -5)
+   enOutline.func = function(self, value)
+      BobTheClockDB.clockoutline = value
+      BobTheHandler:PLAYER_LOGIN()
+   end
 
-   -- clock size
-   -- local clockSlide = Panel:CreateSlider(name, text, low, high, step)
+   -- -- clock size
+   -- -- local clockSlide = Panel:CreateSlider(name, text, low, high, step)
 
-   -- Stats group
-   local StatsStettings = self:CreateFontString(nil, nil, 'GameFontNormal')
-   StatsStettings:SetPoint('TOPLEFT', enOutline, 'BOTTOMLEFT', 0, -10)
-   StatsStettings:SetPoint('RIGHT', -32, 0)
-   StatsStettings:SetJustifyH('LEFT')
-   StatsStettings:SetText('Stats Settings')
-   self.StatsStettings = StatsStettings
+   -- -- Stats group
+   -- local StatsStettings = self:CreateFontString(nil, nil, 'GameFontNormal')
+   -- StatsStettings:SetPoint('TOPLEFT', enOutline, 'BOTTOMLEFT', 0, -10)
+   -- StatsStettings:SetPoint('RIGHT', -32, 0)
+   -- StatsStettings:SetJustifyH('LEFT')
+   -- StatsStettings:SetText('Stats Settings')
+   -- self.StatsStettings = StatsStettings
 
-   -- show?
-   local showStats = Panel:AddCheckbox(Panel, "Check to show stats (FPS, latency and memory)", BobTheClockDB, statsshow)
-   showStats:SetPoint("TOPLEFT", StatsStettings, "BOTTOMLEFT", 0, -5)
+   -- -- show?
+   -- local showStats = Panel:CreateCheckBox(Panel, BobTheClockDB, statsshow)
+   -- showStats:SetPoint("TOPLEFT", StatsStettings, "BOTTOMLEFT", 0, -5)
+   -- showStats.Text:SetText("Check to show stats (FPS, latency and memory)")
 
-   -- shadow
-   local shadowstats = Panel:AddCheckbox(Panel, "Check to show a shadow on the stats.", BobTheClockDB, statsshadow)
-   shadowstats:SetPoint("TOPLEFT", showStats, "BOTTOMLEFT", 0, -5)
+   -- -- shadow
+   -- local shadowstats = Panel:CreateCheckBox(Panel, BobTheClockDB, statsshadow)
+   -- shadowstats:SetPoint("TOPLEFT", showStats, "BOTTOMLEFT", 0, -5)
+   -- shadowstats.Text:SetText("Check to show a shadow on the stats.")
 
-   -- outline
-   local outlinestats = Panel:AddCheckbox(Panel, "Check to show an outline around the stats.", BobTheClockDB, statsoutline)
-   outlinestats:SetPoint("TOPLEFT", shadowstats, "BOTTOMLEFT", 0, -5)
+   -- -- outline
+   -- local outlinestats = Panel:CreateCheckBox(Panel, BobTheClockDB, statsoutline)
+   -- outlinestats:SetPoint("TOPLEFT", shadowstats, "BOTTOMLEFT", 0, -5)
+   -- outlinestats.Text:SetText("Check to show an outline around the stats.")
 
-   Panel:refresh()
    self:SetScript('OnShow', nil)
 end)
 
