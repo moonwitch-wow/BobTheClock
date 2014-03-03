@@ -63,14 +63,20 @@ function BobTheHandler:PLAYER_LOGIN()
    if BobTheClockDB.clockshadow == true then
       BobTheClockTime:SetShadowColor(unpack(BobTheClockDB.shadowcolor))
       BobTheClockTime:SetShadowOffset(1, -1)
-   else return end
+   else
+      BobTheClockTime:SetShadowColor(0,0,0,0)
+      BobTheClockTime:SetShadowOffset(0,0)
+   end
 
    BobTheClockStats:SetFont(BobTheClockDB.statsfont, BobTheClockDB.statssize, BobTheClockDB.statsoutline)
    BobTheClockStats:SetTextColor(unpack(BobTheClockDB.statscolor))
    if BobTheClockDB.statsshadow == true then
       BobTheClockStats:SetShadowColor(unpack(BobTheClockDB.shadowcolor))
       BobTheClockStats:SetShadowOffset(1, -1)
-   else return end
+   else
+      BobTheClockStats:SetShadowColor(0,0,0,0)
+      BobTheClockStats:SetShadowOffset(0,0)
+   end
 
    BobTheClock:SetPoint("TOP", UIParent, 'TOP', 0, -5)
    BobTheClockTime:SetPoint("TOP", BobTheClock, 'TOP', 0, 0)
