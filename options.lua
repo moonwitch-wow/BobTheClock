@@ -153,6 +153,9 @@ Panel:SetScript('OnShow', function(self)
    local enOutline = Panel:AddCheckbox(Panel, "Check to enable an outline on the clock.", BobTheClockDB, clockoutline)
    enOutline:SetPoint("TOPLEFT", enDisShadow, "BOTTOMLEFT", 0, -5)
 
+   -- clock size
+   -- local clockSlide = Panel:CreateSlider(name, text, low, high, step)
+
    -- Stats group
    local StatsStettings = self:CreateFontString(nil, nil, 'GameFontNormal')
    StatsStettings:SetPoint('TOPLEFT', enOutline, 'BOTTOMLEFT', 0, -10)
