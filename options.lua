@@ -114,6 +114,19 @@ function Panel:default()
    table.wipe(temporary)
 end
 
+function Panel:refresh()
+   for key, button in pairs(buttons) do
+      if(button:IsObjectType('CheckButton')) then
+         button:SetChecked(BobTheClockDB[key])
+      elseif(button:IsObjectType('Button')) then
+         UIDropDownMenu_SetSelectedValue(button, BobTheClockDB[key])
+
+         -- This is for some reason needed, gotta take a look into it later
+         UIDropDownMenu_SetText(button, _G[BobTheClockDB[key] .. '_KEY'])
+      end
+   end
+end
+
 -----------------------------
 -- Populating the panel itself (main panel)
 Panel:SetScript('OnShow', function(self)
