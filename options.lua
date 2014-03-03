@@ -12,7 +12,6 @@ local defaults = {
    clockoutline = nil, -- nil, OUTLINE, THICKOUTLINE, MONOCHROMEOUTLINE
    clocksize = 32,
    clockfont = STANDARD_TEXT_FONT,
-   statsshow = true,
    statscolor = {255/255, 204/255, 0/255},
    statsshadow = true,
    statsoutline = nil, -- nil, OUTLINE, THICKOUTLINE, MONOCHROMEOUTLINE
@@ -45,9 +44,7 @@ Panel:SetScript('OnEvent', function()
 end)
 
 function Panel:okay()
-   for key, value in pairs(temporary) do
-      BobTheClockDB[key] = value
-   end
+   BobTheClockDB[key] = value
 end
 
 ------------------------------------------------------------------------
@@ -128,46 +125,31 @@ Panel:SetScript('OnShow', function(self)
    end
 
    -- enable shadow
-   local enDisShadow = self:CreateCheckbox("Check to enable Shadow on the clock.")
+   local enDisShadow = self:CreateCheckbox("Check to enable shadow on the clock.")
    enDisShadow:SetPoint("TOPLEFT", timeFormat, "BOTTOMLEFT", 0, -5)
    enDisShadow.func = function(self, value)
       BobTheClockDB.clockshadow = value
       BobTheHandler:PLAYER_LOGIN()
    end
 
-   -- outline
-   local enOutline = self:CreateCheckbox('Check to enable outline on clock.')
-   enOutline:SetPoint("TOPLEFT", enDisShadow, "BOTTOMLEFT", 0, -5)
-   enOutline.func = function(self, value)
-      BobTheClockDB.clockoutline = value
-      BobTheHandler:PLAYER_LOGIN()
-   end
-
    -- -- clock size
    -- -- local clockSlide = Panel:CreateSlider(name, text, low, high, step)
 
-   -- -- Stats group
-   -- local StatsStettings = self:CreateFontString(nil, nil, 'GameFontNormal')
-   -- StatsStettings:SetPoint('TOPLEFT', enOutline, 'BOTTOMLEFT', 0, -10)
-   -- StatsStettings:SetPoint('RIGHT', -32, 0)
-   -- StatsStettings:SetJustifyH('LEFT')
-   -- StatsStettings:SetText('Stats Settings')
-   -- self.StatsStettings = StatsStettings
+   -- Stats group
+   local StatsStettings = self:CreateFontString(nil, nil, 'GameFontNormal')
+   StatsStettings:SetPoint('TOPLEFT', enOutline, 'BOTTOMLEFT', 0, -10)
+   StatsStettings:SetPoint('RIGHT', -32, 0)
+   StatsStettings:SetJustifyH('LEFT')
+   StatsStettings:SetText('Stats Settings')
+   self.StatsStettings = StatsStettings
 
-   -- -- show?
-   -- local showStats = Panel:CreateCheckBox(Panel, BobTheClockDB, statsshow)
-   -- showStats:SetPoint("TOPLEFT", StatsStettings, "BOTTOMLEFT", 0, -5)
-   -- showStats.Text:SetText("Check to show stats (FPS, latency and memory)")
-
-   -- -- shadow
-   -- local shadowstats = Panel:CreateCheckBox(Panel, BobTheClockDB, statsshadow)
-   -- shadowstats:SetPoint("TOPLEFT", showStats, "BOTTOMLEFT", 0, -5)
-   -- shadowstats.Text:SetText("Check to show a shadow on the stats.")
-
-   -- -- outline
-   -- local outlinestats = Panel:CreateCheckBox(Panel, BobTheClockDB, statsoutline)
-   -- outlinestats:SetPoint("TOPLEFT", shadowstats, "BOTTOMLEFT", 0, -5)
-   -- outlinestats.Text:SetText("Check to show an outline around the stats.")
+   -- shadow
+   local shadowstats = self:CreateCheckbox("Check to enable shadow on stats.")
+   shadowstats:SetPoint("TOPLEFT", StatsStettings, "BOTTOMLEFT", 0, -5)
+   shadowstats.func = function(self, value)
+      BobTheClockDB.statsshadow = value
+      BobTheHandler:PLAYER_LOGIN()
+   end
 
    self:SetScript('OnShow', nil)
 end)
@@ -175,9 +157,3 @@ end)
 -----------------------------
 -- Add the panel to the Interface Options
 InterfaceOptions_AddCategory(Panel)
-
-SLASH_bobtheclock1 = '/bobtheclock'
-SlashCmdList[addonName] = function()
-   InterfaceOptionsFrame_OpenToCategory(addonName)
-end
-
