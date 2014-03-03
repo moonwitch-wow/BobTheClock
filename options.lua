@@ -105,7 +105,7 @@ function Panel:okay()
 end
 
 function Panel:cancel()
-
+   table.wipe(temporary)
 end
 
 
