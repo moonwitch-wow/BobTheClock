@@ -9,8 +9,6 @@ local BACKDROP = {
    insets = {left = 4, right = 4, top = 4, bottom = 4}
 }
 
-
-
 ------------------------------------------------------------------------
 -- Local
 ------------------------------------------------------------------------
@@ -79,14 +77,6 @@ function BobTheHandler:PLAYER_LOGIN()
    BobTheClockStats:SetPoint("TOP", BobTheClockTime, 'BOTTOM', 0, -5)
 
    BobTheClockTime:SetText(bobtime)
-
-   -- if (BobTheClockDB.locked == false) then
-   --    BobTheHandler:argh()
-   -- else
-   --    BobTheClock:SetBackdrop(BACKDROP)
-   --    BobTheClock:SetBackdropColor(0,0,0,0)
-   --    BobTheClock:SetMovable(false)
-   -- end
 end
 
 ------------------------------------------------------------------------
