@@ -176,7 +176,7 @@ Panel:SetScript('OnShow', function(self)
    local outlinestats = Panel:AddCheckbox(Panel, "Check to show an outline around the stats.", BobTheClockDB, statsoutline)
    outlinestats:SetPoint("TOPLEFT", shadowstats, "BOTTOMLEFT", 0, -5)
 
-
+   Panel:refresh()
    self:SetScript('OnShow', nil)
 end)
 
