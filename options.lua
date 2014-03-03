@@ -165,7 +165,7 @@ Panel:SetScript('OnShow', function(self)
 
    -- Clock group
    local ClockSettings = self:CreateFontString(nil, nil, 'GameFontNormal')
-   ClockSettings:SetPoint('TOPLEFT', Description, 'BOTTOMLEFT', 0, -10)
+   ClockSettings:SetPoint('TOPLEFT', Description, 'BOTTOMLEFT', 0, -25)
    ClockSettings:SetPoint('RIGHT', -32, 0)
    ClockSettings:SetJustifyH('LEFT')
    ClockSettings:SetText('Clock Settings')
@@ -191,7 +191,7 @@ Panel:SetScript('OnShow', function(self)
 
    -- clock size
    local clocksizeSlider = self:CreateSlider("Clock size", "Adjust the size of the clock text.", 8, 32, 1)
-   clocksizeSlider:SetPoint("RIGHT", ClockSettings, "RIGHT", -45, -10)
+   clocksizeSlider:SetPoint("RIGHT", ClockSettings, "RIGHT", -55, -20)
    clocksizeSlider:SetValue(BobTheClockDB.clocksize)
    clocksizeSlider.func = function(self, value)
       BobTheClockDB.clocksize = value
@@ -217,7 +217,7 @@ Panel:SetScript('OnShow', function(self)
 
    -- stats size
    local statssizeSlider = self:CreateSlider("Stats size", "Adjust the size of the stats text.", 8, 32, 1)
-   statssizeSlider:SetPoint("RIGHT", StatsStettings, "RIGHT", -45, -10)
+   statssizeSlider:SetPoint("RIGHT", StatsStettings, "RIGHT", -55, -20)
    statssizeSlider:SetValue(BobTheClockDB.statssize)
    statssizeSlider.func = function(self, value)
       BobTheClockDB.statssize = value
