@@ -108,9 +108,11 @@ function Panel:cancel()
    table.wipe(temporary)
 end
 
-
 function Panel:default()
-   BobTheClockDB = defaults
+   for key, value in pairs(defaults) do
+      BobTheClockDB[key] = value
+   end
+
    table.wipe(temporary)
 end
 
