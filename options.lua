@@ -47,13 +47,16 @@ function Panel:okay()
    BobTheClockDB[key] = value
 end
 
+function Panel:Refresh()
+
+end
+
 ------------------------------------------------------------------------
 -- GUI methods
 ------------------------------------------------------------------------
 function Panel:CreateCheckbox(text, tooltiptext)
    -- On Phanx' recommendation randomized name
    local checkButton = CreateFrame("CheckButton", "BobCheckbox" .. random(1000000), self, "InterfaceOptionsCheckButtonTemplate")
-   checkButton:SetHitRectInsets(0, 0, 0, 0)
 
    -- hook functions into this shithole of doom
    checkButton:SetScript("OnClick",
@@ -68,9 +71,9 @@ function Panel:CreateCheckbox(text, tooltiptext)
    -- Customize it
    checkButton.Text:SetText(text)
    if tooltiptext then
-      checkButton.TooltipText = tooltipText
+      checkButton.tooltipText = tooltipText
    else
-      checkButton.TooltipText = text
+      checkButton.tooltipText = text
    end
 
    -- Return it
@@ -80,8 +83,8 @@ end
 function Panel:CreateColorpicker(name, text, desc, point, anchor, rpoint)
 end
 
-function Panel:CreateButton(parent, text, width, func)
-   local button = CreateFrame("Button", nil, parent, "OptionsButtonTemplate")
+function Panel:CreateButton(text, width, func)
+   local button = CreateFrame("Button", nil, self, "OptionsButtonTemplate")
    button:SetText(text)
    button:SetWidth(width)
    button:SetScript("OnClick", func)
@@ -89,6 +92,58 @@ function Panel:CreateButton(parent, text, width, func)
    return button
 end
 
+do
+    local function Slider_OnMouseWheel(self, delta)
+        local step = self:GetValueStep() * delta
+        local minValue, maxValue = self:GetMinMaxValues()
+        if step > 0 then
+            self:SetValue(min(self:GetValue() + step, maxValue))
+        else
+            self:SetValue(max(self:GetValue() + step, minValue))
+        end
+    end
+
+    local function Slider_OnValueChanged(self)
+        local value = self:GetValue()
+
+        -- Work around for Blizzard bug that ignores the step value while dragging:
+        local valueStep, minValue = self:GetValueStep(), self:GetMinMaxValues()
+        if valueStep and valueStep > 0 then
+            value = floor((value - minValue) / valueStep + 0.5) * valueStep + minValue
+        end
+
+        self.value:SetText(value)
+
+        if self.func then
+            self:func(value)
+        end
+    end
+
+    function Panel:CreateSlider(text, tooltipText, minValue, maxValue, stepValue)
+        local slider = CreateFrame("Slider", "BobSlider" .. random(1000000), self, "OptionsSliderTemplate")
+        slider.text = _G[slider:GetName() .. "Text"]
+        slider.lowText = _G[slider:GetName() .. "Low"]
+        slider.highText = _G[slider:GetName() .. "High"]
+
+        slider:EnableMouseWheel(true)
+        slider:SetScript("OnMouseWheel", Slider_OnMouseWheel)
+        slider:SetScript("OnValueChanged", Slider_OnValueChanged)
+
+        local value = slider:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        value:SetPoint("LEFT", slider, "RIGHT", 7, 0)
+        slider.value = value
+
+        slider.lowText:Hide()
+        slider.highText:Hide()
+
+        slider.text:SetText(text)
+        slider.tooltipText = tooltipText
+        slider:SetMinMaxValues(minValue or 0, maxValue or 100)
+        slider:SetValueStep(stepValue or 1)
+
+        return slider
+    end
+end
 
 -----------------------------
 -- Populating the panel itself (main panel)
@@ -105,7 +160,7 @@ Panel:SetScript('OnShow', function(self)
    self.Description = Description
 
    -- general
-   local framelocker = Panel:CreateButton(Panel, "Toggle Framelock", 150, func)
+   local framelocker = Panel:CreateButton("Toggle Framelock", 150, func)
    framelocker:SetPoint("TOPRIGHT", Panel, "TOPRIGHT", -30, -30)
 
    -- Clock group
@@ -119,6 +174,7 @@ Panel:SetScript('OnShow', function(self)
    -- time format
    local timeFormat = self:CreateCheckbox("Use 24-hour time format", "Uncheck this box to switch to 12-hour time format.", BobTheClockDB, timeform24)
    timeFormat:SetPoint("TOPLEFT", ClockSettings, "BOTTOMLEFT", 0, -5)
+   timeFormat:SetChecked(BobTheClockDB.timeform24)
    timeFormat.func = function(self, value)
       BobTheClockDB.timeform24 = value
       BobTheHandler:PLAYER_LOGIN()
@@ -127,17 +183,24 @@ Panel:SetScript('OnShow', function(self)
    -- enable shadow
    local enDisShadow = self:CreateCheckbox("Check to enable shadow on the clock.")
    enDisShadow:SetPoint("TOPLEFT", timeFormat, "BOTTOMLEFT", 0, -5)
+   enDisShadow:SetChecked(BobTheClockDB.clockshadow)
    enDisShadow.func = function(self, value)
       BobTheClockDB.clockshadow = value
       BobTheHandler:PLAYER_LOGIN()
    end
 
-   -- -- clock size
-   -- -- local clockSlide = Panel:CreateSlider(name, text, low, high, step)
+   -- clock size
+   local clocksizeSlider = self:CreateSlider("Clock size", "Adjust the size of the clock text.", 8, 32, 1)
+   clocksizeSlider:SetPoint("RIGHT", ClockSettings, "RIGHT", -45, -10)
+   clocksizeSlider:SetValue(BobTheClockDB.clocksize)
+   clocksizeSlider.func = function(self, value)
+      BobTheClockDB.clocksize = value
+      BobTheHandler:PLAYER_LOGIN()
+   end
 
    -- Stats group
    local StatsStettings = self:CreateFontString(nil, nil, 'GameFontNormal')
-   StatsStettings:SetPoint('TOPLEFT', enOutline, 'BOTTOMLEFT', 0, -10)
+   StatsStettings:SetPoint('TOPLEFT', enDisShadow, 'BOTTOMLEFT', 0, -10)
    StatsStettings:SetPoint('RIGHT', -32, 0)
    StatsStettings:SetJustifyH('LEFT')
    StatsStettings:SetText('Stats Settings')
@@ -146,8 +209,18 @@ Panel:SetScript('OnShow', function(self)
    -- shadow
    local shadowstats = self:CreateCheckbox("Check to enable shadow on stats.")
    shadowstats:SetPoint("TOPLEFT", StatsStettings, "BOTTOMLEFT", 0, -5)
+   shadowstats:SetChecked(BobTheClockDB.statsshadow)
    shadowstats.func = function(self, value)
       BobTheClockDB.statsshadow = value
+      BobTheHandler:PLAYER_LOGIN()
+   end
+
+   -- stats size
+   local statssizeSlider = self:CreateSlider("Stats size", "Adjust the size of the stats text.", 8, 32, 1)
+   statssizeSlider:SetPoint("RIGHT", StatsStettings, "RIGHT", -45, -10)
+   statssizeSlider:SetValue(BobTheClockDB.statssize)
+   statssizeSlider.func = function(self, value)
+      BobTheClockDB.statssize = value
       BobTheHandler:PLAYER_LOGIN()
    end
 
