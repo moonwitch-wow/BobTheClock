@@ -7,7 +7,7 @@
 ## X-Website: https://github.com/moonwitch/BobTheClock
 ## X-Email: kelly.crabbe@gmail.com
 
-SavedVariables: BobTheClockDB
+##SavedVariables: BobTheClockDB
 
 options.lua
 core.lua
