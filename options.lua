@@ -128,6 +128,10 @@ Panel:SetScript('OnShow', function(self)
    Description:SetText('Just for Bob, we wrote The Bob Clock!')
    self.Description = Description
 
+   -- general
+   local framelocker = Panel:CreateButton(Panel, "Toggle Framelock", 150, func)
+   framelocker:SetPoint("TOPRIGHT", Panel, "TOPRIGHT", -30, -30)
+
    -- Clock group
    local ClockSettings = self:CreateFontString(nil, nil, 'GameFontNormal')
    ClockSettings:SetPoint('TOPLEFT', Description, 'BOTTOMLEFT', 0, -10)
