@@ -138,8 +138,9 @@ Panel:SetScript('OnShow', function(self)
    self.ClockSettings = ClockSettings
 
    -- time format
-   local timeFormatButton = Panel:AddCheckbox(Panel, "Check to enable 24h format.", BobTheClockDB, timeform24)
+   local timeFormatButton = Panel:AddCheckbox(Panel, BobTheClockDB, timeform24)
    timeFormatButton:SetPoint("TOPLEFT", ClockSettings, "BOTTOMLEFT", 0, -5)
+   timeFormatButton:SetText('Check to enable 24h format.')
 
    -- enable shadow
    local enDisShadow = Panel:AddCheckbox(Panel, "Check to enable a shadow on the clock.", BobTheClockDB, clockshadow)
