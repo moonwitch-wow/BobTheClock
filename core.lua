@@ -25,9 +25,9 @@ local BobTheHandler = CreateFrame("Frame", 'BobTheHandler') -- frame for the upd
 ------------------------------------------------------------------------
 local function formatMemory(n)
    if n > 999 then
-      return string.format("%.1f %s", n / 1024, 'MB')
+      return string.format("%.1f%s", n / 1024, 'MB')
    else
-      return string.format("%.0f %s", n, 'KB')
+      return string.format("%.0f%s", n, 'KB')
    end
 end
 
@@ -39,19 +39,7 @@ BobTheClock:EnableMouse(true)
 local BobTheClockStats = BobTheClock:CreateFontString(nil, nil, nil)
 local BobTheClockTime = BobTheClock:CreateFontString(nil, nil, nil)
 
-function BobTheHandler:argh()
-   BobTheClock:SetBackdrop(BACKDROP)
-   BobTheClock:SetBackdropColor(0, 1, 0, .5)
-   BobTheClock:SetMovable(true)
-   BobTheClock:SetUserPlaced(true)
-   BobTheClock:RegisterForDrag('RightButton')
-   BobTheClock:SetScript("OnDragStart", function() BobTheClock:StartMoving() end)
-   BobTheClock:SetScript("OnDragStop", function() BobTheClock:StopMovingOrSizing() end)
-end
-
 function BobTheHandler:PLAYER_LOGIN()
-
-
    -- Bob wanted a huge clock
    BobTheClockTime:SetFont(BobTheClockDB.clockfont, BobTheClockDB.clocksize, BobTheClockDB.clockoutline)
    BobTheClockTime:SetTextColor(unpack(BobTheClockDB.clockcolor))
@@ -72,25 +60,17 @@ function BobTheHandler:PLAYER_LOGIN()
       BobTheClockStats:SetShadowColor(0,0,0,0)
       BobTheClockStats:SetShadowOffset(0,0)
    end
-
-   BobTheClock:SetPoint("TOP", UIParent, 'TOP', 0, -5)
+   if not BobTheClock:IsUserPlaced() then
+      BobTheClock:SetPoint('TOP', UIParent, 'TOP', 0, -5)
+   end
    BobTheClockTime:SetPoint("TOP", BobTheClock, 'TOP', 0, 0)
    BobTheClockStats:SetPoint("TOP", BobTheClockTime, 'BOTTOM', 0, -5)
-
-   BobTheClockTime:SetText(bobtime)
 end
 
 ------------------------------------------------------------------------
 -- OnUpdate - getting the info
 ------------------------------------------------------------------------
 BobTheHandler:SetScript("OnUpdate", function(self, count)
-   local bobtime
-   if (BobTheClockDB.timeform24 == true) then
-      bobtime = date("%H:%M")
-   else
-      bobtime = date('%I:%M %p')
-   end
-
    elapsed = elapsed + count
    if elapsed < UPDATEPERIOD then return end
 
@@ -99,6 +79,15 @@ BobTheHandler:SetScript("OnUpdate", function(self, count)
    local _, _, lag = GetNetStats()
    local mem = collectgarbage("count")
    UpdateAddOnMemoryUsage()
+
+   local bobtime
+   if (BobTheClockDB.timeform24 == true) then
+      bobtime = date("%H:%M")
+   else
+      bobtime = date('%I:%M %p')
+   end
+
+   BobTheClockTime:SetText(bobtime)
 
    BobTheClockStats:SetText(fps .. 'fps  ' .. lag .. 'ms  ' .. formatMemory(mem))
 end)

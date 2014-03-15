@@ -17,8 +17,9 @@ local defaults = {
    statsoutline = nil, -- nil, OUTLINE, THICKOUTLINE, MONOCHROMEOUTLINE
    statssize = 14,
    statsfont = STANDARD_TEXT_FONT,
-   locked = true,
-   shadowcolor = {0, 0, 0, .8} -- keeping it universal
+   isMovable = false,
+   shadowcolor = {0, 0, 0, .8}, -- keeping it universal
+   position = {'TOP', UIParent, 'TOP', 0, -5},
 }
 
 ------------------------------------------------------------------------
@@ -145,6 +146,31 @@ do
     end
 end
 
+------------------------------------------------------------------------
+-- Mover func
+------------------------------------------------------------------------
+function Panel:argh()
+   if (BobTheClockDB.isMovable) then
+      BobTheClockDB.isMovable = false
+      BobTheClock:SetBackdrop(BACKDROP)
+      BobTheClock:SetBackdropColor(0, 1, 0, .5)
+      BobTheClock:SetMovable(true)
+      BobTheClock:SetUserPlaced(true)
+      BobTheClock:RegisterForDrag('RightButton')
+      -- debug
+      UIErrorsFrame:AddMessage("Bob is unlocked", 1.0, 0.0, 0.0, 53, 5)
+   elseif (not BobTheClockDB.isMovable) then
+      BobTheClockDB.isMovable = true
+      BobTheClock:SetBackdrop(nil)
+      BobTheClock:SetBackdropColor(0, 0, 0, 0)
+      BobTheClock:SetMovable(false)
+      -- debug
+      UIErrorsFrame:AddMessage("Bob is locked", 1.0, 0.0, 0.0, 53, 5);
+   end
+   BobTheClock:SetScript("OnDragStart", function() if IsAltKeyDown() then BobTheClock:StartMoving() end end)
+   BobTheClock:SetScript("OnDragStop", function() BobTheClock:StopMovingOrSizing() end)
+end
+
 -----------------------------
 -- Populating the panel itself (main panel)
 Panel:SetScript('OnShow', function(self)
@@ -160,8 +186,14 @@ Panel:SetScript('OnShow', function(self)
    self.Description = Description
 
    -- general
-   local framelocker = Panel:CreateButton("Toggle Framelock", 150, func)
-   framelocker:SetPoint("TOPRIGHT", Panel, "TOPRIGHT", -30, -30)
+   local framelocker = self:CreateCheckbox('Movable', "Uncheck to lock the frame", BobTheClockDB, isMovable)
+   framelocker:SetPoint("TOPRIGHT", Panel, "TOPRIGHT", -70, -30)
+   framelocker:SetChecked(BobTheClockDB.isMovable)
+   framelocker.func = function(self, value)
+      BobTheClockDB.isMovable = value
+      BobTheHandler:PLAYER_LOGIN()
+      Panel:argh()
+   end
 
    -- Clock group
    local ClockSettings = self:CreateFontString(nil, nil, 'GameFontNormal')
