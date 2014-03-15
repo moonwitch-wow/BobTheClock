@@ -152,8 +152,6 @@ end
 function Panel:argh()
    if (BobTheClockDB.isMovable) then
       BobTheClockDB.isMovable = false
-      BobTheClock:SetBackdrop(BACKDROP)
-      BobTheClock:SetBackdropColor(0, 1, 0, .5)
       BobTheClock:SetMovable(true)
       BobTheClock:SetUserPlaced(true)
       BobTheClock:RegisterForDrag('RightButton')
@@ -161,14 +159,19 @@ function Panel:argh()
       UIErrorsFrame:AddMessage("Bob is unlocked", 1.0, 0.0, 0.0, 53, 5)
    elseif (not BobTheClockDB.isMovable) then
       BobTheClockDB.isMovable = true
-      BobTheClock:SetBackdrop(nil)
-      BobTheClock:SetBackdropColor(0, 0, 0, 0)
       BobTheClock:SetMovable(false)
       -- debug
-      UIErrorsFrame:AddMessage("Bob is locked", 1.0, 0.0, 0.0, 53, 5);
+      UIErrorsFrame:AddMessage("Bob is locked", 1.0, 0.0, 0.0, 53, 5)
    end
-   BobTheClock:SetScript("OnDragStart", function() if IsAltKeyDown() then BobTheClock:StartMoving() end end)
-   BobTheClock:SetScript("OnDragStop", function() BobTheClock:StopMovingOrSizing() end)
+   BobTheClock:SetScript("OnDragStart", function()
+      if IsAltKeyDown() then
+         BobTheClock:StartMoving()
+      end
+   end)
+   BobTheClock:SetScript("OnDragStop", function()
+      BobTheClock:StopMovingOrSizing()
+      BobTheClock:IsUserPlaced(true)
+   end)
 end
 
 -----------------------------
