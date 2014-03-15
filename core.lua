@@ -50,12 +50,7 @@ function BobTheHandler:argh()
 end
 
 function BobTheHandler:PLAYER_LOGIN()
-   local bobtime
-   if (BobTheClockDB.timeform24 == true) then
-      bobtime = date("%H:%M")
-   else
-      bobtime = date('%I:%M %p')
-   end
+
 
    -- Bob wanted a huge clock
    BobTheClockTime:SetFont(BobTheClockDB.clockfont, BobTheClockDB.clocksize, BobTheClockDB.clockoutline)
@@ -89,6 +84,13 @@ end
 -- OnUpdate - getting the info
 ------------------------------------------------------------------------
 BobTheHandler:SetScript("OnUpdate", function(self, count)
+   local bobtime
+   if (BobTheClockDB.timeform24 == true) then
+      bobtime = date("%H:%M")
+   else
+      bobtime = date('%I:%M %p')
+   end
+
    elapsed = elapsed + count
    if elapsed < UPDATEPERIOD then return end
 
