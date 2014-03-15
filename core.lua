@@ -60,7 +60,7 @@ function BobTheHandler:PLAYER_LOGIN()
       BobTheClockStats:SetShadowColor(0,0,0,0)
       BobTheClockStats:SetShadowOffset(0,0)
    end
-   if not BobTheClock:IsUserPlaced() then
+   if (not BobTheClock:IsUserPlaced()) then
       BobTheClock:SetPoint('TOP', UIParent, 'TOP', 0, -5)
    end
    BobTheClockTime:SetPoint("TOP", BobTheClock, 'TOP', 0, 0)
